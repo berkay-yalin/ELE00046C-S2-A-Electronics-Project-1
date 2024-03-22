@@ -1,0 +1,10 @@
+{
+    "target_overrides": {
+        "*": {
+            "target.c_lib": "std",
+            "platform.callback-nontrivial": true,
+            "platform.stdio-baud-rate": 9600,
+            "platform.stdio-buffered-serial": 1
+        }
+    }
+}
