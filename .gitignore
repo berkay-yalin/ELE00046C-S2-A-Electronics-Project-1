@@ -7,3 +7,6 @@ BUILD
 compile_commands.json
 .clangd
 .cache
+
+.mbedbuild
+cmake_build/
