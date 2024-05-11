@@ -2,8 +2,8 @@
 #define MY_STM32_LIBRARY_PINS_HPP
 
 namespace STM32 {
-  constexpr uint8_t LCD_REG = PB1; // LCD register select pin
-    constexpr uint8_t LCD_EN = PB0; // LCD enable pin
+  constexpr uint8_t LCD_REG = PB2; // LCD register select pin
+    constexpr uint8_t LCD_EN = PB1; // LCD enable pin
     constexpr uint8_t LCD_D4 = PA4; // LCD data pin 4
     constexpr uint8_t LCD_D5 = PA5; // LCD data pin 5
     constexpr uint8_t LCD_D6 = PA6; // LCD data pin 6
