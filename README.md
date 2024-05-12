@@ -1,13 +1,13 @@
-meow tehe,
+# ELE00046C-S2-A-Electronics-Project-1
 
-WARNING: project only runs with a STM32CubeMX extension as i havent embedded such libraries into the project as of yet.
-//this is a public repository dedicated to a year 1 game project
+Electronics Project 1 - ELE00046C
 
+## Resources
 
-mbed-tools new ELE00046C-S2-A-Electronics-Project-1
+- [STM32 Nucleo Boards](https://www.st.com/en/evaluation-tools/stm32-nucleo-boards.html)
 
-mbed-tools detect
+- [NUCLEO-G071RB](https://os.mbed.com/platforms/ST-Nucleo-G071RB/)
 
-mbed-tools configure -m NUCLEO_G071RB -t ARM
+- [LCD1602](http://wiki.sunfounder.cc/index.php?title=LCD1602_Module)
 
-mbed-tools compile -m NUCLEO_G071RB -t GCC_ARM
+- [TextLCD Library](https://os.mbed.com/users/simon/code/TextLCD/docs/308d188a2d3a/classTextLCD.html)
