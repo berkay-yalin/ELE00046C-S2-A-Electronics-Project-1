@@ -1,7 +1,7 @@
 #include "mbed.h"
 #include "TextLCD.h"
 
-TextLCD lcd(D2, D3, D4, D5, D6, D7);
+TextLCD lcd(D4, D5, D9, D10, D11, D12);
 
 int main() {
     lcd.cls();
