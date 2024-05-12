@@ -8,6 +8,6 @@ Electronics Project 1 - ELE00046C
 
 - [NUCLEO-G071RB](https://os.mbed.com/platforms/ST-Nucleo-G071RB/)
 
-- [LCD1602](http://wiki.sunfounder.cc/index.php?title=LCD1602_Module)
+- [LCD1602 Module](http://wiki.sunfounder.cc/index.php?title=LCD1602_Module)
 
 - [TextLCD Library](https://os.mbed.com/users/simon/code/TextLCD/docs/308d188a2d3a/classTextLCD.html)
