@@ -11,3 +11,6 @@ Electronics Project 1 - ELE00046C
 - [LCD1602 Module](http://wiki.sunfounder.cc/index.php?title=LCD1602_Module)
 
 - [TextLCD Library](https://os.mbed.com/users/simon/code/TextLCD/docs/308d188a2d3a/classTextLCD.html)
+
+- [mbedLCD Library](https://os.mbed.com/users/sstaub/code/mbedLCD/)
+
