@@ -3,6 +3,8 @@
 
 #include <string>
 #include <vector>
+#include <utility>
+#include <random>
 
 #include "card_suit_characters.hpp"
 
@@ -39,6 +41,32 @@ vector<string> generate_cards() {
     return cards;
 }
 
+int getSuit(string card) {
+    /**
+        returns the number representing the input card's suit
+    **/
+    char suit = card[0];
+    
+    if (suit == 'C') {
+        return 1;
+    }
+    else if (suit == 'D') {
+        return 2;
+    }
+    else if (suit == 'H') {
+        return 3;
+    }
+    else if (suit == 'S') {
+        return 4;
+    }
+    return 0;
+}
+
+string getRank(string card) {
+    string rank = card.substr(1);
+    return rank;
+}
+
 // initalise buttons
 DigitalOut button_start(D8, PullUp);
 DigitalOut button_select(D9, PullUp);
@@ -51,18 +79,26 @@ string state = "start screen";
 //  lcd(rs, en, d4, d5, d6, d7, LCD type)
 LCD lcd(D0, D1, D4, D5, D6, D7, LCD16x2);
 
-
 vector<string> cards = generate_cards();
 
-int main() {
-    printf("\n");
+// std::random_device rd;
+// std::mt19937 gen(rd());
+// std::uniform_int_distribution<> dis(1, 100);
 
-    lcd.create(0, card_suit_characters::club);
-    lcd.create(1, card_suit_characters::diamond);
-    lcd.create(2, card_suit_characters::heart);
-    lcd.create(3, card_suit_characters::spade);
+
+void setup() {
+    printf("\n");
+    lcd.create(1, card_suit_characters::club);
+    lcd.create(2, card_suit_characters::diamond);
+    lcd.create(3, card_suit_characters::heart);
+    lcd.create(4, card_suit_characters::spade);
+}
+
+int main() {
+    setup();
 
     while (true) {
+        // STAGE 1: START SCREEN
         if (state == "start screen") {
             lcd.printf("Neutronics Poker");
 
@@ -77,91 +113,28 @@ int main() {
             state = "stage2";
         }
 
-        // very poor code just to prove working concept
-        // requires immediate rewrite
+        // STAGE 2: 
         if (state == "stage2") {
-            int column_position = 0;
-            int row_position = 1;
+            int column = 0;
+            int row = 0;
 
             lcd.cls();
 
-            // display first number
-            string card = "C9";
-            char suit = card[0];
-            string value = card.substr(1);
-            lcd.locate(column_position, row_position);
+            // example river for proof of concept
+            vector<string> cards = {"C9", "H10", "DK"};
 
-            if (suit == 'C') {
-                lcd.character(column_position, row_position, 0);
-            }
-            else if (suit == 'D') {
-                lcd.character(column_position, row_position, 1);
-            }
-            else if (suit == 'H') {
-                lcd.character(column_position, row_position, 2);
-            }
-            else if (suit == 'S') {
-                lcd.character(column_position, row_position, 3);
-            }
+            for (int i = 0; i < 3; i++) {
+                int suit = getSuit(cards[i]);
+                string rank = getRank(cards[i]);
 
-            column_position += 1;
-            lcd.locate(column_position, row_position);
+                lcd.character(column, row, suit);
+                column += 1;
+                lcd.locate(column, row);
 
-            lcd.printf(value.c_str());
-            column_position += value.length() + 1;
-            lcd.locate(column_position, row_position);
-
-            // display second number
-            card = "S10";
-            suit = card[0];
-            value = card.substr(1);
-            lcd.locate(column_position, row_position);
-
-            if (suit == 'C') {
-                lcd.character(column_position, row_position, 0);
+                lcd.printf("%s", (const char *)rank.c_str());
+                column += rank.length() + 1;
+                lcd.locate(column, row);
             }
-            else if (suit == 'D') {
-                lcd.character(column_position, row_position, 1);
-            }
-            else if (suit == 'H') {
-                lcd.character(column_position, row_position, 2);
-            }
-            else if (suit == 'S') {
-                lcd.character(column_position, row_position, 3);
-            }
-
-            column_position += 1;
-            lcd.locate(column_position, row_position);
-
-            lcd.printf(value.c_str());
-            column_position += value.length() + 1;
-            lcd.locate(column_position, row_position);
-
-            // display third number
-            card = "H3";
-            suit = card[0];
-            value = card.substr(1);
-            lcd.locate(column_position, row_position);
-
-            if (suit == 'C') {
-                lcd.character(column_position, row_position, 0);
-            }
-            else if (suit == 'D') {
-                lcd.character(column_position, row_position, 1);
-            }
-            else if (suit == 'H') {
-                lcd.character(column_position, row_position, 2);
-            }
-            else if (suit == 'S') {
-                lcd.character(column_position, row_position, 3);
-            }
-
-            column_position += 1;
-            lcd.locate(column_position, row_position);
-
-            lcd.printf(value.c_str());
-            column_position += value.length() + 1;
-            lcd.locate(column_position, row_position);
 
 
             break;
