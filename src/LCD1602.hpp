@@ -17,6 +17,11 @@ namespace LCD1602 {
             _lcd.printf("%s", (const char*)text.c_str());
         }
 
+        void display2() {
+            char cc1[] = {0x00, 0x00, 0x0A, 0x00, 0x11, 0x0E, 0x00, 0x00};
+            _lcd.puts(cc1);
+        }
+
         void clear() {
             _lcd.cls();
         }
