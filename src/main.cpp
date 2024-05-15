@@ -8,6 +8,7 @@
 #include "LCD.h"
 #include "LCD1602.hpp"
 #include "poker.hpp"
+#include "custom_characters.hpp"
 #include "utilities.hpp"
 
 // initalise buttons
@@ -23,16 +24,22 @@ LCD1602::LCD1602 blackbox(D0, D1, D4, D5, D6, D7);
 
 poker::Deck deck;
 
+vector<string> river;
+vector<string> user;
+vector<string> player1;
+vector<string> player2;
+
 void setup() {
     // print newline otherwise printf doesn't work for some reason
     printf("\n");
 
+    blackbox.create_char("fill", custom_characters::fill);
+
     // Fill first 4 CGRAM locations with custom card suit characters
-    poker::CardSuitCharacters cardSuitCharacters;
-    blackbox.create_char("club", cardSuitCharacters.club);
-    blackbox.create_char("diamond", cardSuitCharacters.diamond);
-    blackbox.create_char("heart", cardSuitCharacters.heart);
-    blackbox.create_char("spade", cardSuitCharacters.spade);
+    blackbox.create_char("club", custom_characters::club);
+    blackbox.create_char("diamond", custom_characters::diamond);
+    blackbox.create_char("hearts", custom_characters::heart);
+    blackbox.create_char("spade", custom_characters::spade);
 }
 
 int main() {
@@ -46,54 +53,87 @@ int main() {
 
             while (true) {
                 if (button_start == false) {
+                    blackbox.clear();
+                    state = "river3";
                     break;
                 }
             }
-
-            blackbox.clear();
-            state = "stage2";
         }
 
-        // STAGE 2: 
-        if (state == "stage2") {
-            // river
-            vector<string> cards = {
-                deck.draw_card(),
-                deck.draw_card(),
-                deck.draw_card(), 
-            };
+        // STAGE 2
+        if (state == "river3") {
+            river = {deck.draw_card(), deck.draw_card(), deck.draw_card(), deck.draw_card(), deck.draw_card()};
+            user = {deck.draw_card(), deck.draw_card()};
+            player1 = {deck.draw_card(), deck.draw_card()};
+            player2 = {deck.draw_card(), deck.draw_card()};
 
-            for (int i = 0; i < cards.size(); i++) {
-                string suit = poker::getSuit(cards[i]);
-                string rank = poker::getRank(cards[i]);
+            // display river
+            for (int i = 0; i < 3; i++) {
+                string suit = poker::getSuit(river[i]);
+                string rank = poker::getRank(river[i]);
 
                 blackbox.display_char(suit);
                 blackbox.display_string(rank);
                 blackbox.display_string(" ");
             }
 
-            deck.debug_print_deck();
+            // display player cards;
+            blackbox.locate(2, 1);
 
-            // player cards
-            blackbox.locate(10, 1);
+            vector<vector<string>> players = {player1, player2};
 
-            cards = {
-                deck.draw_card(),
-                deck.draw_card()
-            };
+            for (int i = 0; i < players.size(); i++) {
+                    blackbox.display_char("fill");
+                    blackbox.display_char("fill");
+                    blackbox.display_char("fill");
+                    blackbox.display_char("fill");
+                    blackbox.display_string(" ");
+            }
 
-            for (int i = 0; i < cards.size(); i++) {
-                string suit = poker::getSuit(cards[i]);
-                string rank = poker::getRank(cards[i]);
+            // display user cards
+            for (int i = 0; i < user.size(); i++) {
+                string suit = poker::getSuit(user[i]);
+                string rank = poker::getRank(user[i]);
 
-                blackbox.display_string(" ");
                 blackbox.display_char(suit);
                 blackbox.display_string(rank);
             }
 
-            deck.debug_print_deck();
+            while (true) {
+                if (button_a == false) {
+                    state = "river4";
+                    thread_sleep_for(100);
+                    break;
+                }
+            }
+        }
 
-            break;
+        // STAGE 3
+        if (state == "river4") {
+            // display fourth card in river
+            blackbox.locate(9, 0);
+            string suit = poker::getSuit(river[3]);
+            string rank = poker::getRank(river[3]);
+            blackbox.display_char(suit);
+            blackbox.display_string(rank);
+
+            while (true) {
+                if (button_a == false) {
+                    state = "river5";
+                    thread_sleep_for(100);
+                    break;
+                }
+            }
+        }
+
+        // STAGE 4
+        if (state == "river5") {
+            // display fifth card in river
+            blackbox.locate(12, 0);
+            string suit = poker::getSuit(river[4]);
+            string rank = poker::getRank(river[4]);
+            blackbox.display_char(suit);
+            blackbox.display_string(rank);
         }
     }
 }
