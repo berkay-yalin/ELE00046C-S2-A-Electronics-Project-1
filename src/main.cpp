@@ -1,12 +1,12 @@
-#include "mbed.h"
-#include "LCD.h"
-
 #include <string>
 #include <vector>
 #include <utility>
 #include <random>
 #include <ctime>
 
+#include "mbed.h"
+#include "LCD.h"
+#include "LCD1602.hpp"
 #include "card_suit_characters.hpp"
 
 string center_string(string text, int width = 16) {
@@ -42,23 +42,23 @@ vector<string> generate_cards() {
     return cards;
 }
 
-int getSuit(string card) {
+string getSuit(string card) {
     /**
         returns the number representing the input card's suit
     **/
     char suit = card[0];
     
     if (suit == 'C') {
-        return 1;
+        return "club";
     }
     else if (suit == 'D') {
-        return 2;
+        return "diamond";
     }
     else if (suit == 'H') {
-        return 3;
+        return "hearts";
     }
     else if (suit == 'S') {
-        return 4;
+        return "spades";
     }
     return 0;
 }
@@ -128,18 +128,21 @@ DigitalOut button_b(D11, PullUp);
 string state = "start screen";
 
 //  lcd(rs, en, d4, d5, d6, d7, LCD type)
-LCD lcd(D0, D1, D4, D5, D6, D7, LCD16x2);
+// LCD lcd(D0, D1, D4, D5, D6, D7, LCD16x2);
 
 vector<string> cards = generate_cards();
 
 Deck deck;
 
+
+LCD1602::LCD1602 blackbox(D0, D1, D4, D5, D6, D7);
+
 void setup() {
     printf("\n");
-    lcd.create(1, card_suit_characters::club);
-    lcd.create(2, card_suit_characters::diamond);
-    lcd.create(3, card_suit_characters::heart);
-    lcd.create(4, card_suit_characters::spade);
+    blackbox.create_char("club", card_suit_characters::club);
+    blackbox.create_char("diamond", card_suit_characters::diamond);
+    blackbox.create_char("heart", card_suit_characters::heart);
+    blackbox.create_char("spade", card_suit_characters::spade);
 }
 
 int main() {
@@ -148,28 +151,21 @@ int main() {
     while (true) {
         // STAGE 1: START SCREEN
         if (state == "start screen") {
-            lcd.printf("Neutronics Poker");
-
-            lcd.printf("%s", (const char*)center_string("Press Start").c_str());
+            blackbox.display_string("Neutronics Poker");
+            blackbox.display_string(center_string("Press Start"));
 
             while (true) {
                 if (button_start == false) {
                     break;
                 }
             }
-            lcd.cls();
+
+            blackbox.clear();
             state = "stage2";
         }
 
         // STAGE 2: 
         if (state == "stage2") {
-            // define stuff
-            int column = 0;
-            int row = 0;
-            vector<string> cards;
-
-            lcd.cls();
-
             // river
             cards = {
                 deck.draw_card(),
@@ -178,40 +174,31 @@ int main() {
             };
 
             for (int i = 0; i < cards.size(); i++) {
-                int suit = getSuit(cards[i]);
+                string suit = getSuit(cards[i]);
                 string rank = getRank(cards[i]);
 
-                lcd.character(column, row, suit);
-                column += 1;
-                lcd.locate(column, row);
-
-                lcd.printf("%s", (const char *)rank.c_str());
-                column += rank.length() + 1;
-                lcd.locate(column, row);
+                blackbox.display_char(suit);
+                blackbox.display_string(rank);
+                blackbox.display_string(" ");
             }
 
             deck.debug_print_deck();
 
-            column = 11;
-            row = 1;
-
             // player cards
+            blackbox.locate(10, 1);
+
             cards = {
                 deck.draw_card(),
                 deck.draw_card()
             };
 
             for (int i = 0; i < cards.size(); i++) {
-                int suit = getSuit(cards[i]);
+                string suit = getSuit(cards[i]);
                 string rank = getRank(cards[i]);
 
-                lcd.character(column, row, suit);
-                column += 1;
-                lcd.locate(column, row);
-
-                lcd.printf("%s", (const char *)rank.c_str());
-                column += rank.length() + 1;
-                lcd.locate(column, row);
+                blackbox.display_string(" ");
+                blackbox.display_char(suit);
+                blackbox.display_string(rank);
             }
 
             deck.debug_print_deck();
@@ -220,4 +207,3 @@ int main() {
         }
     }
 }
-
