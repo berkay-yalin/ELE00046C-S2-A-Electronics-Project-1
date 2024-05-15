@@ -5,6 +5,7 @@
 #include <vector>
 #include <utility>
 #include <random>
+#include <ctime>
 
 #include "card_suit_characters.hpp"
 
@@ -67,6 +68,56 @@ string getRank(string card) {
     return rank;
 }
 
+class Deck {
+private:
+    vector<string> deck;
+    int numberOfcardsInDeck;
+    const vector<string> suits = {"C", "D", "H", "S"};
+    const vector<string> ranks = {"J", "Q", "K", "A"};
+
+    std::random_device rd;
+    std::mt19937 gen;
+
+public:
+    Deck() : gen(rd()) {
+        // generate deck
+        deck = generate_deck();
+        numberOfcardsInDeck = deck.size();
+        // gen.seed(static_cast<unsigned>(std::time(nullptr)));
+    }
+
+    vector<string> generate_deck() {
+        vector<string> cards;
+        for (int i = 0; i < 4; i++) {
+            for (int j = 2; j <= 10; j++) {
+                cards.push_back(suits[i] + to_string(j));
+            }
+            for (int j = 0; j < 4; j++) {
+                cards.push_back(suits[i] + ranks[j]);
+            }
+        }
+        return cards;
+    }
+
+    string draw_card() {
+        std::uniform_int_distribution<> dis(0, numberOfcardsInDeck - 1);
+        int randomNumber = dis(gen);
+        string randomCard = deck[randomNumber];
+        deck.erase(deck.begin() + randomNumber);
+        return randomCard;
+    }
+
+    void reset_deck() {
+        deck = generate_deck();
+    }
+
+    void debug_print_deck() {
+        for (int i = 0; i < deck.size(); i++) {
+            printf("%s\n", (const char*)deck[i].c_str());
+        }
+    }
+};
+
 // initalise buttons
 DigitalOut button_start(D8, PullUp);
 DigitalOut button_select(D9, PullUp);
@@ -81,10 +132,7 @@ LCD lcd(D0, D1, D4, D5, D6, D7, LCD16x2);
 
 vector<string> cards = generate_cards();
 
-// std::random_device rd;
-// std::mt19937 gen(rd());
-// std::uniform_int_distribution<> dis(1, 100);
-
+Deck deck;
 
 void setup() {
     printf("\n");
@@ -115,15 +163,21 @@ int main() {
 
         // STAGE 2: 
         if (state == "stage2") {
+            // define stuff
             int column = 0;
             int row = 0;
+            vector<string> cards;
 
             lcd.cls();
 
-            // example river for proof of concept
-            vector<string> cards = {"C9", "H10", "DK"};
+            // river
+            cards = {
+                deck.draw_card(),
+                deck.draw_card(),
+                deck.draw_card(), 
+            };
 
-            for (int i = 0; i < 3; i++) {
+            for (int i = 0; i < cards.size(); i++) {
                 int suit = getSuit(cards[i]);
                 string rank = getRank(cards[i]);
 
@@ -136,8 +190,34 @@ int main() {
                 lcd.locate(column, row);
             }
 
+            deck.debug_print_deck();
+
+            column = 11;
+            row = 1;
+
+            // player cards
+            cards = {
+                deck.draw_card(),
+                deck.draw_card()
+            };
+
+            for (int i = 0; i < cards.size(); i++) {
+                int suit = getSuit(cards[i]);
+                string rank = getRank(cards[i]);
+
+                lcd.character(column, row, suit);
+                column += 1;
+                lcd.locate(column, row);
+
+                lcd.printf("%s", (const char *)rank.c_str());
+                column += rank.length() + 1;
+                lcd.locate(column, row);
+            }
+
+            deck.debug_print_deck();
 
             break;
         }
     }
 }
+
