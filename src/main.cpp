@@ -7,7 +7,6 @@
 #include "mbed.h"
 #include "LCD.h"
 #include "LCD1602.hpp"
-#include "card_suit_characters.hpp"
 #include "poker.hpp"
 #include "utilities.hpp"
 
@@ -25,11 +24,15 @@ LCD1602::LCD1602 blackbox(D0, D1, D4, D5, D6, D7);
 poker::Deck deck;
 
 void setup() {
+    // print newline otherwise printf doesn't work for some reason
     printf("\n");
-    blackbox.create_char("club", card_suit_characters::club);
-    blackbox.create_char("diamond", card_suit_characters::diamond);
-    blackbox.create_char("heart", card_suit_characters::heart);
-    blackbox.create_char("spade", card_suit_characters::spade);
+
+    // Fill first 4 CGRAM locations with custom card suit characters
+    poker::CardSuitCharacters cardSuitCharacters;
+    blackbox.create_char("club", cardSuitCharacters.club);
+    blackbox.create_char("diamond", cardSuitCharacters.diamond);
+    blackbox.create_char("heart", cardSuitCharacters.heart);
+    blackbox.create_char("spade", cardSuitCharacters.spade);
 }
 
 int main() {
