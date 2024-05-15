@@ -8,115 +8,8 @@
 #include "LCD.h"
 #include "LCD1602.hpp"
 #include "card_suit_characters.hpp"
-
-string center_string(string text, int width = 16) {
-    /**
-        centre a string in a fixed-width with padded spaces
-        e.g., center_string("four", 16) would return "      four      "
-    **/
-    int padding_number = ceil( (width - text.length()) / 2 );
-    string padding = "";
-    while (padding_number > 0) {
-        padding += " ";
-        padding_number--;
-    }
-    string padded_text = padding + text + padding;
-    return padded_text;
-}
-
-vector<string> generate_cards() {
-    const vector<string> suits = {"C", "D", "H", "S"};
-    const vector<string> ranks = {"J", "Q", "K", "A"};
-    vector<string> cards;
-
-    for (int i = 0; i < 4; i++) {
-        for (int j = 2; j <= 10; j++) {
-            cards.push_back(suits[i] + to_string(j));
-        }
-
-        for (int j = 0; j < 4; j++) {
-            cards.push_back(suits[i] + ranks[j]);
-        }
-    }
-
-    return cards;
-}
-
-string getSuit(string card) {
-    /**
-        returns the number representing the input card's suit
-    **/
-    char suit = card[0];
-    
-    if (suit == 'C') {
-        return "club";
-    }
-    else if (suit == 'D') {
-        return "diamond";
-    }
-    else if (suit == 'H') {
-        return "hearts";
-    }
-    else if (suit == 'S') {
-        return "spades";
-    }
-    return 0;
-}
-
-string getRank(string card) {
-    string rank = card.substr(1);
-    return rank;
-}
-
-class Deck {
-private:
-    vector<string> deck;
-    int numberOfcardsInDeck;
-    const vector<string> suits = {"C", "D", "H", "S"};
-    const vector<string> ranks = {"J", "Q", "K", "A"};
-
-    std::random_device rd;
-    std::mt19937 gen;
-
-public:
-    Deck() : gen(rd()) {
-        // generate deck
-        deck = generate_deck();
-        numberOfcardsInDeck = deck.size();
-        // gen.seed(static_cast<unsigned>(std::time(nullptr)));
-    }
-
-    vector<string> generate_deck() {
-        vector<string> cards;
-        for (int i = 0; i < 4; i++) {
-            for (int j = 2; j <= 10; j++) {
-                cards.push_back(suits[i] + to_string(j));
-            }
-            for (int j = 0; j < 4; j++) {
-                cards.push_back(suits[i] + ranks[j]);
-            }
-        }
-        return cards;
-    }
-
-    string draw_card() {
-        std::uniform_int_distribution<> dis(0, numberOfcardsInDeck - 1);
-        int randomNumber = dis(gen);
-        string randomCard = deck[randomNumber];
-        deck.erase(deck.begin() + randomNumber);
-        return randomCard;
-    }
-
-    void reset_deck() {
-        deck = generate_deck();
-    }
-
-    void debug_print_deck() {
-        for (int i = 0; i < deck.size(); i++) {
-            printf("%s\n", (const char*)deck[i].c_str());
-        }
-    }
-};
+#include "poker.hpp"
+#include "utilities.hpp"
 
 // initalise buttons
 DigitalOut button_start(D8, PullUp);
@@ -127,15 +20,9 @@ DigitalOut button_b(D11, PullUp);
 // global variable to determine which state the game is at
 string state = "start screen";
 
-//  lcd(rs, en, d4, d5, d6, d7, LCD type)
-// LCD lcd(D0, D1, D4, D5, D6, D7, LCD16x2);
-
-vector<string> cards = generate_cards();
-
-Deck deck;
-
-
 LCD1602::LCD1602 blackbox(D0, D1, D4, D5, D6, D7);
+
+poker::Deck deck;
 
 void setup() {
     printf("\n");
@@ -152,7 +39,7 @@ int main() {
         // STAGE 1: START SCREEN
         if (state == "start screen") {
             blackbox.display_string("Neutronics Poker");
-            blackbox.display_string(center_string("Press Start"));
+            blackbox.display_string(utilities::center_string("Press Start"));
 
             while (true) {
                 if (button_start == false) {
@@ -167,15 +54,15 @@ int main() {
         // STAGE 2: 
         if (state == "stage2") {
             // river
-            cards = {
+            vector<string> cards = {
                 deck.draw_card(),
                 deck.draw_card(),
                 deck.draw_card(), 
             };
 
             for (int i = 0; i < cards.size(); i++) {
-                string suit = getSuit(cards[i]);
-                string rank = getRank(cards[i]);
+                string suit = poker::getSuit(cards[i]);
+                string rank = poker::getRank(cards[i]);
 
                 blackbox.display_char(suit);
                 blackbox.display_string(rank);
@@ -193,8 +80,8 @@ int main() {
             };
 
             for (int i = 0; i < cards.size(); i++) {
-                string suit = getSuit(cards[i]);
-                string rank = getRank(cards[i]);
+                string suit = poker::getSuit(cards[i]);
+                string rank = poker::getRank(cards[i]);
 
                 blackbox.display_string(" ");
                 blackbox.display_char(suit);
