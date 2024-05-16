@@ -1,8 +1,5 @@
+#include <cmath>
 #include <string>
-#include <vector>
-#include <utility>
-#include <random>
-#include <ctime>
 
 namespace utilities {
     string center_string(string text, int width = 16) {

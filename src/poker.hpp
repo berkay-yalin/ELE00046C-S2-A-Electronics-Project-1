@@ -2,7 +2,6 @@
 #include <string>
 #include <vector>
 #include <utility>
-#include <random>
 #include <ctime>
 
 namespace poker {
@@ -13,13 +12,14 @@ namespace poker {
         const vector<string> suits = {"C", "D", "H", "S"};
         const vector<string> ranks = {"J", "Q", "K", "A"};
 
-        std::random_device rd;
-        std::mt19937 gen;
+        // std::random_device rd;
+        // std::mt19937 gen;
 
     public:
-        Deck() : gen(rd()) {
+        // Deck() : gen(rd()) {
+        Deck() {
             deck = generate_deck();
-            numberOfcardsInDeck = deck.size();
+            numberOfcardsInDeck = 52;
         }
 
         vector<string> generate_deck() {
@@ -36,15 +36,21 @@ namespace poker {
         }
 
         string draw_card() {
-            std::uniform_int_distribution<> dis(0, numberOfcardsInDeck - 1);
-            int randomNumber = dis(gen);
+            const int min = 1;
+            const int max = numberOfcardsInDeck;
+            int randomNumber = min + rand() % (max - min + 1);
+
             string randomCard = deck[randomNumber];
             deck.erase(deck.begin() + randomNumber);
+
+            printf(randomCard.c_str());
+            printf("\n");
             return randomCard;
         }
 
         void reset_deck() {
             deck = generate_deck();
+            numberOfcardsInDeck = 52;
         }
 
         void debug_print_deck() {
@@ -64,11 +70,12 @@ namespace poker {
             return "diamond";
         }
         else if (suit == 'H') {
-            return "hearts";
+            return "heart";
         }
         else if (suit == 'S') {
-            return "spades";
+            return "spade";
         }
+        printf("broken character: %c\n", suit);
         return 0;
     }
 
