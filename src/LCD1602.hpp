@@ -33,8 +33,6 @@ namespace LCD1602 {
             _lcd.locate(_column, _row);
             _lcd.printf("%s", (const char*)text.c_str());
             _update_location(text.length());
-
-            // printf("debug : column row: %d %d\n", _column, _row);
         }
 
         void create_char(string name, uint8_t charmap[]) {
@@ -46,8 +44,6 @@ namespace LCD1602 {
         void display_char(string name) {
             _lcd.character(_column, _row, _characters[name]);
             _update_location(1);
-
-            // printf("debug : column row: %d %d\n", _column, _row);
         }
 
         void clear() {

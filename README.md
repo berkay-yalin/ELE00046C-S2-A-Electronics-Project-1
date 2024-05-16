@@ -12,6 +12,8 @@ Electronics Project 1 - ELE00046C
 
 - [mbedLCD Library](https://os.mbed.com/users/sstaub/code/mbedLCD/)
 
+- [Poker Handa](https://www.cardplayer.com/rules-of-poker/hand-rankings)
+
 ## LCD1602 Custom class
 
 The [LCD1602](https://github.com/berkay-yalin/ELE00046C-S2-A-Electronics-Project-1/blob/main/src/LCD1602.hpp) library

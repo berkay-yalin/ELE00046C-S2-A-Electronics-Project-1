@@ -1,3 +1,5 @@
+#include <array>
+
 #include <string>
 #include <vector>
 #include <utility>
@@ -30,7 +32,7 @@ vector<string> player2;
 
 void setup() {
     // print newline otherwise printf doesn't work for some reason
-    printf("\n");
+    printf("START\n");
 
     blackbox.create_char("fill", custom_characters::fill);
 
@@ -183,8 +185,22 @@ int main() {
                 blackbox.display_string(" ");
             }
 
+            vector<string> user_cards    = { river[0], river[1], river[2], river[3], river[4], user[0],       user[1]    };
+            vector<string> player1_cards = { river[0], river[1], river[2], river[3], river[4], player1[0], player1[1] };
+            vector<string> player2_cards = { river[0], river[1], river[2], river[3], river[4], player2[0], player2[1] };
+
+            int userPoints = poker::getPoints(user_cards);
+            int player1Points = poker::getPoints(player1_cards);
+            int player2Points = poker::getPoints(player2_cards);
+
+            printf("%d\n", userPoints);
+            printf("%d\n", player1Points);
+            printf("%d\n", player2Points);
+
             return 0;
         }
+
+        
 
     }
 }
