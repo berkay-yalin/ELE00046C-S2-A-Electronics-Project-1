@@ -1,7 +1,6 @@
 #include <string>
 #include <vector>
 #include <utility>
-#include <random>
 #include <ctime>
 
 #include "mbed.h"
@@ -38,7 +37,7 @@ void setup() {
     // Fill first 4 CGRAM locations with custom card suit characters
     blackbox.create_char("club", custom_characters::club);
     blackbox.create_char("diamond", custom_characters::diamond);
-    blackbox.create_char("hearts", custom_characters::heart);
+    blackbox.create_char("heart", custom_characters::heart);
     blackbox.create_char("spade", custom_characters::spade);
 }
 
@@ -55,6 +54,7 @@ int main() {
                 if (button_start == false) {
                     blackbox.clear();
                     state = "river3";
+                    thread_sleep_for(200);
                     break;
                 }
             }
@@ -62,10 +62,15 @@ int main() {
 
         // STAGE 2
         if (state == "river3") {
+            // deck.reset_deck();
+            blackbox.clear();
+            blackbox.locate(0, 0);
+
             river = {deck.draw_card(), deck.draw_card(), deck.draw_card(), deck.draw_card(), deck.draw_card()};
             user = {deck.draw_card(), deck.draw_card()};
             player1 = {deck.draw_card(), deck.draw_card()};
             player2 = {deck.draw_card(), deck.draw_card()};
+            
 
             // display river
             for (int i = 0; i < 3; i++) {
@@ -102,7 +107,7 @@ int main() {
             while (true) {
                 if (button_a == false) {
                     state = "river4";
-                    thread_sleep_for(100);
+                    thread_sleep_for(200);
                     break;
                 }
             }
@@ -120,7 +125,7 @@ int main() {
             while (true) {
                 if (button_a == false) {
                     state = "river5";
-                    thread_sleep_for(100);
+                    thread_sleep_for(200);
                     break;
                 }
             }
@@ -134,6 +139,52 @@ int main() {
             string rank = poker::getRank(river[4]);
             blackbox.display_char(suit);
             blackbox.display_string(rank);
+
+            while (true) {
+                if (button_a == false) {
+                    state = "end screen";
+                    thread_sleep_for(200);
+                    break;
+                }
+            }
         }
+
+        // STAGE 4
+        if (state == "end screen") {
+            blackbox.clear();
+            blackbox.locate(0, 0);
+
+            // display river
+            for (int i = 0; i < river.size(); i++) {
+                string suit = poker::getSuit(river[i]);
+                string rank = poker::getRank(river[i]);
+
+                blackbox.display_char(suit);
+                blackbox.display_string(rank);
+                blackbox.display_string(" ");
+            }
+            
+            // display players
+            blackbox.locate(2, 1);
+
+            vector<vector<string>> players = {player1, player2, user};
+            for (int i = 0; i < players.size(); i++) {
+                    vector<string> _player = players[i];
+                    
+                for (int j = 0; j < _player.size(); j++) {
+                    string card = _player[j];
+                    string suit = poker::getSuit(card);
+                    string rank = poker::getRank(card);
+
+                    blackbox.display_char(suit);
+                    blackbox.display_string(rank);
+                }
+                
+                blackbox.display_string(" ");
+            }
+
+            return 0;
+        }
+
     }
 }
