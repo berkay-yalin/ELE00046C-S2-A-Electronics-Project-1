@@ -57,5 +57,15 @@ namespace LCD1602 {
             _row = y;
             _lcd.locate(x, y);
         }
+
+        void clear_row(int row) {
+            _column = 0;
+            _row = row;
+            for (int i = 0; i < 16; i++) {
+                _lcd.printf(" ");
+            }
+            _column = 0;
+            _row = row;
+        }
     };
 }
