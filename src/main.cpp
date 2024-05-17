@@ -185,17 +185,24 @@ int main() {
                 blackbox.display_string(" ");
             }
 
-            vector<string> user_cards    = { river[0], river[1], river[2], river[3], river[4], user[0],       user[1]    };
-            vector<string> player1_cards = { river[0], river[1], river[2], river[3], river[4], player1[0], player1[1] };
-            vector<string> player2_cards = { river[0], river[1], river[2], river[3], river[4], player2[0], player2[1] };
+            // vector<string> user_cards    = { river[0], river[1], river[2], river[3], river[4], user[0],       user[1]    };
+            // vector<string> player1_cards = { river[0], river[1], river[2], river[3], river[4], player1[0], player1[1] };
+            // vector<string> player2_cards = { river[0], river[1], river[2], river[3], river[4], player2[0], player2[1] };
 
-            int userPoints = poker::getPoints(user_cards);
-            int player1Points = poker::getPoints(player1_cards);
-            int player2Points = poker::getPoints(player2_cards);
+            // int userPoints = poker::getPoints(user_cards);
+            // int player1Points = poker::getPoints(player1_cards);
+            // int player2Points = poker::getPoints(player2_cards);
 
-            printf("%d\n", userPoints);
-            printf("%d\n", player1Points);
-            printf("%d\n", player2Points);
+            // printf("%d\n", userPoints);
+            // printf("%d\n", player1Points);
+            // printf("%d\n", player2Points);
+
+            
+            vector<string> lol2 = {"S10", "D10", "C6", "S6", "H7"};
+            int xd2 = poker::getHighCard(lol2);
+
+            printf("%d\n", xd2);
+
 
             return 0;
         }

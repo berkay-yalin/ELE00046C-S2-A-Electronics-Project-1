@@ -9,6 +9,7 @@
 #include <vector>
 #include <utility>
 #include <ctime>
+#include <set>
 
 #include <unordered_set>
 
@@ -69,6 +70,8 @@ namespace poker {
         }
     };
 
+
+
     string getSuit(string card) {
         char suit = card[0];
         
@@ -84,7 +87,6 @@ namespace poker {
         else if (suit == 'S') {
             return "spade";
         }
-        // printf("broken character: %c\n", suit);
         return 0;
     }
 
@@ -92,6 +94,8 @@ namespace poker {
         string rank = card.substr(1);
         return rank;
     }
+
+
 
     bool inVector(std::vector<std::string> vec, std::string str) {
         for (const auto& element : vec) {
@@ -117,129 +121,80 @@ namespace poker {
         return false;
     }
 
-    // really poor code to demonstrate proof of concept
-    // immediate rewrite requried
+
 
     bool isRoyalFlush(vector<string> cards) {
-        vector<string> suits;
+        std::map<string, int> suitCounts;
+        for (int i = 0; i < cards.size(); i++) {
+            suitCounts[getSuit(cards[i])]++;
+        }
 
-        int club_count = 0;
-        int diamond_count = 0;
-        int heart_count = 0;
-        int spade_count = 0;
-
-        for (int i = 0; i < 7; i++) {
-            char suit = cards[i][0];
-
-            if (suit == 'C') {
-                club_count++;
-            }
-            else if (suit == 'D') {
-                diamond_count++;
-            }
-            else if (suit == 'H') {
-                heart_count++;
-            }
-            else if (suit == 'S') {
-                spade_count++;
+        char mostCommonSuit;
+        for (auto i = suitCounts.begin(); i != suitCounts.end(); i++) {
+            if (i->second == 5) {
+                mostCommonSuit = i->first[0];
             }
         }
 
-        char suit_5;
-        if (club_count == 5) {
-            suit_5 = 'C';
-        }
-        else if (diamond_count == 5) {
-            suit_5 = 'D';
-        }
-        else if (heart_count == 5) {
-            suit_5 = 'H';
-        }
-        else if (spade_count == 5) {
-            suit_5 = 'S';
-        }
-        else {
-            return false;
-        }
-
+        mostCommonSuit = toupper(mostCommonSuit);
 
         vector<string> ranks;
-        for (int i = 0; i < 7; i++) {
-            if (suit_5 == cards[i][0]) {
-                ranks.push_back(cards[i].substr(1));
+        for (int i = 0; i < cards.size(); i++) {
+            if (mostCommonSuit == cards[i][0]) {
+                ranks.push_back(getRank(cards[i]));
             }
         }
 
-        if (inVector(ranks, "J") && inVector(ranks, "Q") && inVector(ranks, "K") && inVector(ranks, "A")) {
+        if (
+            std::find(ranks.begin(), ranks.end(), "10") != ranks.end()
+            && std::find(ranks.begin(), ranks.end(), "J") != ranks.end()
+            && std::find(ranks.begin(), ranks.end(), "Q") != ranks.end()
+            && std::find(ranks.begin(), ranks.end(), "K") != ranks.end()
+            && std::find(ranks.begin(), ranks.end(), "A") != ranks.end()
+        ) {
             return true;
         }
-        else {
-            return false;
-        }
+        return false;
     }
 
     bool isStraightFlush(vector<string> cards) {
-        vector<string> suits;
+        std::map<string, int> suitCounts;
+        for (int i = 0; i < cards.size(); i++) {
+            suitCounts[getSuit(cards[i])]++;
+        }
 
-        int club_count = 0;
-        int diamond_count = 0;
-        int heart_count = 0;
-        int spade_count = 0;
-
-        for (int i = 0; i < 7; i++) {
-            char suit = cards[i][0];
-
-            if (suit == 'C') {
-                club_count++;
-            }
-            else if (suit == 'D') {
-                diamond_count++;
-            }
-            else if (suit == 'H') {
-                heart_count++;
-            }
-            else if (suit == 'S') {
-                spade_count++;
+        char mostCommonSuit;
+        for (auto i = suitCounts.begin(); i != suitCounts.end(); i++) {
+            if (i->second == 5) {
+                mostCommonSuit = i->first[0];
             }
         }
 
-        char suit_5;
-        if (club_count >= 5) {
-            suit_5 = 'C';
-        }
-        else if (diamond_count >= 5) {
-            suit_5 = 'D';
-        }
-        else if (heart_count >= 5) {
-            suit_5 = 'H';
-        }
-        else if (spade_count >= 5) {
-            suit_5 = 'S';
-        }
-        else {
-            return false;
-        }
+        mostCommonSuit = toupper(mostCommonSuit);
 
         vector<int> ranks;
-        for (int i = 0; i < 7; i++) {
-            if (suit_5 == cards[i][0]) {
-                string rank = cards[i].substr(1);
+        for (int i = 0; i < cards.size(); i++) {
+            if (mostCommonSuit == cards[i][0]) {
+                string rank = getRank(cards[i]);
+                int rank_value;
 
                 if (rank == "J") {
-                    ranks.push_back(11);
+                    rank_value = 11;
                 }
                 else if (rank == "Q") {
-                    ranks.push_back(12);
+                    rank_value = 12;
                 }
                 else if (rank == "K") {
-                    ranks.push_back(13);
+                    rank_value = 13;
                 }
                 else if (rank == "A") {
-                    ranks.push_back(14);
+                    rank_value = 14;
                 }
                 else {
-                    ranks.push_back(std::stoi(rank));
+                    rank_value = std::stoi(rank);
                 }
+
+                ranks.push_back(rank_value);
             }
         }
 
@@ -252,85 +207,41 @@ namespace poker {
     }
 
     bool isFourOfAKind(vector<string> cards) {
-        std::map<int, int> rankCounts;
-
+        std::map<string, int> rankCounts;
         for (int i = 0; i < cards.size(); i++) {
-            string rank = getRank(cards[i]);
-            int rank_value;
-
-            if (rank == "J") {
-                rank_value = 11;
-            }
-            else if (rank == "Q") {
-                rank_value = 12;
-            }
-            else if (rank == "K") {
-                rank_value = 13;
-            }
-            else if (rank == "A") {
-                rank_value = 14;
-            }
-            else {
-                rank_value = std::stoi(cards[i].substr(1));
-            }
-
-            rankCounts[rank_value]++;
+            rankCounts[getRank(cards[i])]++;
         }
-
-        bool fourOfAKind = false;
 
         for (auto i = rankCounts.begin(); i != rankCounts.end(); i++) {
             if (i->second == 4) {
-                fourOfAKind = true;
+                return true;
             }
         }
-
-        return fourOfAKind;
+        return false;
     }
 
     bool isFullHouse(vector<string> cards) {
-        std::map<int, int> rankCounts;
-
+        std::map<string, int> rankCounts;
         for (int i = 0; i < cards.size(); i++) {
-            string rank = getRank(cards[i]);
-            int rank_value;
-
-            if (rank == "J") {
-                rank_value = 11;
-            }
-            else if (rank == "Q") {
-                rank_value = 12;
-            }
-            else if (rank == "K") {
-                rank_value = 13;
-            }
-            else if (rank == "A") {
-                rank_value = 14;
-            }
-            else {
-                rank_value = std::stoi(cards[i].substr(1));
-            }
-
-            rankCounts[rank_value]++;
+            rankCounts[getRank(cards[i])]++;
         }
 
-        bool threeOfAKind = false;
-        bool twoOfAKind = false;
-
+        bool isThreeOfAKind = false;
+        bool isTwoOfAKind = false;
         for (auto i = rankCounts.begin(); i != rankCounts.end(); i++) {
             if (i->second == 3) {
-                threeOfAKind = true;
+                isThreeOfAKind = true;
             }
             if (i->second == 2) {
-                twoOfAKind = true;
+                isTwoOfAKind = true;
             }
         }
-
-        return threeOfAKind && twoOfAKind;
+        return isThreeOfAKind && isTwoOfAKind;
     }
 
     bool isFlush(vector<string> cards) {
         std::map<string, int> suitCounts;
+
         for (int i = 0; i < cards.size(); i++) {
             suitCounts[getSuit(cards[i])]++;
         }
@@ -345,27 +256,27 @@ namespace poker {
 
     bool isStraight(vector<string> cards) {
         vector<int> ranks;
-        for (int i = 0; i < 7; i++) {
+        for (int i = 0; i < cards.size(); i++) {
             string rank = getRank(cards[i]);
-
-            // printf("string rank: %s\n", rank.c_str());
+            int rank_value;
 
             if (rank == "J") {
-                ranks.push_back(11);
+                rank_value = 11;
             }
             else if (rank == "Q") {
-                ranks.push_back(12);
+                rank_value = 12;
             }
             else if (rank == "K") {
-                ranks.push_back(13);
+                rank_value = 13;
             }
             else if (rank == "A") {
-                ranks.push_back(14);
+                rank_value = 14;
             }
             else {
-                // printf("v: %s\n", rank.c_str());
-                ranks.push_back(std::stoi(rank));
+                rank_value = std::stoi(rank);
             }
+
+            ranks.push_back(rank_value);
         }
 
         std::sort(ranks.begin(), ranks.end());
@@ -377,29 +288,9 @@ namespace poker {
     }
 
     bool isThreeOfAKind(vector<string> cards) {
-        std::map<int, int> rankCounts;
-
+        std::map<string, int> rankCounts;
         for (int i = 0; i < cards.size(); i++) {
-            string rank = getRank(cards[i]);
-            int rank_value;
-
-            if (rank == "J") {
-                rank_value = 11;
-            }
-            else if (rank == "Q") {
-                rank_value = 12;
-            }
-            else if (rank == "K") {
-                rank_value = 13;
-            }
-            else if (rank == "A") {
-                rank_value = 14;
-            }
-            else {
-                rank_value = std::stoi(cards[i].substr(1));
-            }
-
-            rankCounts[rank_value]++;
+            rankCounts[getRank(cards[i])]++;
         }
 
         for (auto i = rankCounts.begin(); i != rankCounts.end(); i++) {
@@ -411,68 +302,28 @@ namespace poker {
     }
 
     bool isTwoPair(vector<string> cards) {
-        std::map<int, int> rankCounts;
-
+        std::map<string, int> rankCounts;
         for (int i = 0; i < cards.size(); i++) {
-            string rank = getRank(cards[i]);
-            int rank_value = 0;
-
-            if (rank == "J") {
-                rank_value = 11;
-            }
-            else if (rank == "Q") {
-                rank_value = 12;
-            }
-            else if (rank == "K") {
-                rank_value = 13;
-            }
-            else if (rank == "A") {
-                rank_value = 14;
-            }
-            else {
-                rank_value = std::stoi(rank);
-            }
-
-            rankCounts[rank_value]++;
+            rankCounts[getRank(cards[i])]++;
         }
 
-        int pairCount = 0;
+        int numberOfPairs = 0;
         for (auto i = rankCounts.begin(); i != rankCounts.end(); i++) {
             if (i->second == 2) {
-                pairCount++;
+                numberOfPairs++;
             }
         }
-
-        if (pairCount >= 2) {
+        
+        if (numberOfPairs >= 2) {
             return true;
         }
         return false;
     }
 
     bool isPair(vector<string> cards) {
-        std::map<int, int> rankCounts;
-
+        std::map<string, int> rankCounts;
         for (int i = 0; i < cards.size(); i++) {
-            string rank = getRank(cards[i]);
-            int rank_value;
-
-            if (rank == "J") {
-                rank_value = 11;
-            }
-            else if (rank == "Q") {
-                rank_value = 12;
-            }
-            else if (rank == "K") {
-                rank_value = 13;
-            }
-            else if (rank == "A") {
-                rank_value = 14;
-            }
-            else {
-                rank_value = std::stoi(cards[i].substr(1));
-            }
-
-            rankCounts[rank_value]++;
+            rankCounts[getRank(cards[i])]++;
         }
 
         for (auto i = rankCounts.begin(); i != rankCounts.end(); i++) {
@@ -483,8 +334,8 @@ namespace poker {
         return false;
     }
 
-    int getHighestRank(vector<string> cards) {
-        int highestRank = 0;
+    int getHighCard(vector<string> cards) {
+        vector<int> ranks;
         for (int i = 0; i < cards.size(); i++) {
             string rank = getRank(cards[i]);
             int rank_value;
@@ -504,50 +355,20 @@ namespace poker {
             else {
                 rank_value = std::stoi(rank);
             }
-            // printf("rank_value: %d\n", highestRank);
-            if (highestRank < rank_value) {
-                highestRank = rank_value;
+
+            ranks.push_back(rank_value);
+        }
+
+        std::sort(ranks.begin(), ranks.end());
+
+        int highestCard = 0;
+        for (int i = 0; i < ranks.size(); i++) {
+            if (highestCard < ranks[i]) {
+                highestCard = ranks[i];
             }
-            // printf("highestRank: %d\n", highestRank);
-            // printf("\n");
-        }
-        // printf("highestRank final: %d\n", highestRank);
-        return highestRank;
-    }
-
-    int getPoints(vector<string> cards) {
-        int score = getHighestRank(cards);
-
-        if (isRoyalFlush(cards)) {
-            score += 100; 
-        }
-        else if (isStraightFlush(cards)) {
-            score += 90;
-        }
-        else if (isFourOfAKind(cards)) {
-            score += 80;
-        }
-        else if (isFullHouse(cards)) {
-            score += 70;
-        }
-        else if (isFlush(cards)) {
-            score += 60;
-        }
-        else if (isStraight(cards)) {
-            score += 50;
-        }
-        else if (isThreeOfAKind(cards)) {
-            score += 40;
-        }
-        else if (isTwoPair(cards)) {
-            score += 30;
-        }
-        else if (isPair(cards)) {
-            score += 20;
         }
 
-        return score;
+        return highestCard;
     }
 
 }
-
