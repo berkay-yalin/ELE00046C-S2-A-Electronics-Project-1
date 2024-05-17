@@ -150,3 +150,17 @@ int main() {
     lcd.clear();
 }
 ```
+
+## clear_row
+Clears the input row.
+
+```cpp
+#include "mbed.h"
+#include "LCD1602.hpp"
+
+LCD1602::LCD1602 lcd(D0, D1, D4, D5, D6, D7);
+
+int main() {
+    lcd.clear_row(1);
+}
+```
