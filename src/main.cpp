@@ -51,6 +51,7 @@ vector<string> user;
 vector<string> player1;
 vector<string> player2;
 
+enum difficulty { BEGINNER, INTERMEDIATE, PRO };
 
 void setup() {
     // print newline otherwise printf doesn't work for some reason
@@ -65,26 +66,110 @@ void setup() {
     blackbox.create_char("spade", custom_characters::spade);
 }
 
+void start_screen() {
+    blackbox.clear();
+    blackbox.locate(0, 0);
+    blackbox.display_string("Neutronics Poker");
+    blackbox.locate(0, 1);
+    blackbox.display_string(utilities::center_string("Press Start"));
+}
+
+void menu_screen() {
+    blackbox.clear();
+    blackbox.locate(0, 0);
+    blackbox.display_string("Game Select:");
+    blackbox.locate(0, 1);
+    blackbox.display_string("A) Poker B) BKJK");
+}
+
+void select_difficulty(difficulty* diff) {
+    const char* difficulty_levels[3] = {
+        "Beginner",
+        "Intermediate",
+        "Pro"
+    };
+
+    int selection = 0;
+
+    blackbox.clear();
+    blackbox.locate(0, 0);
+    blackbox.display_string("Difficulty:");
+    blackbox.locate(0, 1);
+    blackbox.display_string(difficulty_levels[selection]);
+
+    while (true) {
+        // Update LCD display based on selection
+
+        // Check for Select button press
+        if (button_select == false) {
+            selection++;
+            blackbox.clear_row(1);
+            blackbox.display_string(difficulty_levels[selection]);
+
+            // Updates displayed selection when select button is pressed
+            if (selection >= 3) {
+                selection = 0;
+                blackbox.clear_row(1);
+                blackbox.display_string(difficulty_levels[selection]);
+            }
+
+            thread_sleep_for(200);
+        }
+
+        // returns selected difficulty when A button is pressed
+        if (button_a == false) {
+            *diff = (difficulty)(selection);
+            break;
+        }
+
+        // returns to the menu screen if B button is pressed
+        if (button_b == false) {
+            menu_screen();
+            break;
+        }
+    }
+}
+
 int main() {
     setup();
+    difficulty selectedDiff;
 
     while (true) {
         // STAGE 1: START SCREEN
         if (state == "start screen") {
-            blackbox.display_string("Neutronics Poker");
-            blackbox.display_string(utilities::center_string("Press Start"));
+            start_screen();
+            // blackbox.display_string("Neutronics Poker");
+            // blackbox.display_string(utilities::center_string("Press Start"));
 
             while (true) {
+                // STAGE 2: MENU SCREEN
                 if (button_start == false) {
-                    blackbox.clear();
-                    state = "river3";
-                    thread_sleep_for(200);
+                    menu_screen();
+                    // state = "river3";
+                    // thread_sleep_for(200);
+                    // break;
+
+                    while (true) {
+                        // STAGE 3: DIFFICULTY SELECTION
+                        if (button_a == false) {
+                            select_difficulty(&selectedDiff);
+                            state = "river3"; // selects poker game
+                            thread_sleep_for(200);
+                            break;
+                        } else if (button_b == false) {
+                            select_difficulty(&selectedDiff);
+                            state = "river3"; // change to select blackjack game later
+                            thread_sleep_for(200);
+                            break;
+                        }
+                    }
                     break;
                 }
             }
+            
         }
 
-        // STAGE 2
+        // STAGE 4
         if (state == "river3") {
             deck.reset_deck();
             blackbox.clear();
@@ -121,7 +206,7 @@ int main() {
             }
         }
 
-        // STAGE 3
+        // STAGE 5
         if (state == "river4") {
             display_river(blackbox, river, 4);
 
@@ -134,7 +219,7 @@ int main() {
             }
         }
 
-        // STAGE 4
+        // STAGE 6
         if (state == "river5") {
             display_river(blackbox, river, 5);
 
@@ -147,7 +232,7 @@ int main() {
             }
         }
 
-        // STAGE 4
+        // STAGE 7
         if (state == "end screen") {
             blackbox.clear();
             blackbox.locate(0, 0);
