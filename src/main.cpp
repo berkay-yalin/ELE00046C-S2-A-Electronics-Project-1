@@ -1,5 +1,3 @@
-#include <array>
-
 #include <string>
 #include <vector>
 #include <utility>
@@ -11,6 +9,29 @@
 #include "poker.hpp"
 #include "custom_characters.hpp"
 #include "utilities.hpp"
+
+void display_river(LCD1602::LCD1602& lcd, vector<string> river, int numberOfCards){
+    lcd.locate(0, 0);
+    for (int i = 0; i < numberOfCards; i++) {
+        lcd.display_char(poker::getSuit(river[i]));
+        lcd.display_string(poker::getRank(river[i]));
+        lcd.display_string(" ");
+    }
+}
+
+void display_player_cards(LCD1602::LCD1602& lcd, vector<string> player1, vector<string> player2, vector<string> user) {
+    vector<vector<string>> players = {player1, player2, user};
+    for (int i = 0; i < players.size(); i++) {
+        vector<string> player = players[i];
+
+        for (int j = 0; j < player.size(); j++) {
+            lcd.display_char(   poker::getSuit(player[j]) );
+            lcd.display_string( poker::getRank(player[j]) );
+        }
+
+        lcd.display_string(" ");
+    }
+}
 
 // initalise buttons
 DigitalOut button_start(D8, PullUp);
@@ -29,6 +50,7 @@ vector<string> river;
 vector<string> user;
 vector<string> player1;
 vector<string> player2;
+
 
 void setup() {
     // print newline otherwise printf doesn't work for some reason
@@ -64,46 +86,30 @@ int main() {
 
         // STAGE 2
         if (state == "river3") {
-            // deck.reset_deck();
+            deck.reset_deck();
             blackbox.clear();
             blackbox.locate(0, 0);
 
-            river = {deck.draw_card(), deck.draw_card(), deck.draw_card(), deck.draw_card(), deck.draw_card()};
-            user = {deck.draw_card(), deck.draw_card()};
+            river   = {deck.draw_card(), deck.draw_card(), deck.draw_card(), deck.draw_card(), deck.draw_card()};
+            user    = {deck.draw_card(), deck.draw_card()};
             player1 = {deck.draw_card(), deck.draw_card()};
             player2 = {deck.draw_card(), deck.draw_card()};
-            
 
-            // display river
-            for (int i = 0; i < 3; i++) {
-                string suit = poker::getSuit(river[i]);
-                string rank = poker::getRank(river[i]);
+            display_river(blackbox, river, 3);
 
-                blackbox.display_char(suit);
-                blackbox.display_string(rank);
+            blackbox.locate(2, 1);
+
+            for (int i = 0; i < 2; i++) {
+                blackbox.display_char("fill");
+                blackbox.display_char("fill");
+                blackbox.display_char("fill");
+                blackbox.display_char("fill");
                 blackbox.display_string(" ");
             }
 
-            // display player cards;
-            blackbox.locate(2, 1);
-
-            vector<vector<string>> players = {player1, player2};
-
-            for (int i = 0; i < players.size(); i++) {
-                    blackbox.display_char("fill");
-                    blackbox.display_char("fill");
-                    blackbox.display_char("fill");
-                    blackbox.display_char("fill");
-                    blackbox.display_string(" ");
-            }
-
-            // display user cards
             for (int i = 0; i < user.size(); i++) {
-                string suit = poker::getSuit(user[i]);
-                string rank = poker::getRank(user[i]);
-
-                blackbox.display_char(suit);
-                blackbox.display_string(rank);
+                blackbox.display_char(   poker::getSuit(user[i]) );
+                blackbox.display_string( poker::getRank(user[i]) );
             }
 
             while (true) {
@@ -117,12 +123,7 @@ int main() {
 
         // STAGE 3
         if (state == "river4") {
-            // display fourth card in river
-            blackbox.locate(9, 0);
-            string suit = poker::getSuit(river[3]);
-            string rank = poker::getRank(river[3]);
-            blackbox.display_char(suit);
-            blackbox.display_string(rank);
+            display_river(blackbox, river, 4);
 
             while (true) {
                 if (button_a == false) {
@@ -135,17 +136,12 @@ int main() {
 
         // STAGE 4
         if (state == "river5") {
-            // display fifth card in river
-            blackbox.locate(12, 0);
-            string suit = poker::getSuit(river[4]);
-            string rank = poker::getRank(river[4]);
-            blackbox.display_char(suit);
-            blackbox.display_string(rank);
+            display_river(blackbox, river, 5);
 
             while (true) {
                 if (button_a == false) {
                     state = "end screen";
-                    thread_sleep_for(200);
+                    thread_sleep_for(500);
                     break;
                 }
             }
@@ -155,92 +151,75 @@ int main() {
         if (state == "end screen") {
             blackbox.clear();
             blackbox.locate(0, 0);
+            display_river(blackbox, river, 5);
 
-            // display river
-            for (int i = 0; i < river.size(); i++) {
-                string suit = poker::getSuit(river[i]);
-                string rank = poker::getRank(river[i]);
+            // blackbox.locate(2, 1);
+            // display_player_cards(blackbox, player1, player2, user);
 
-                blackbox.display_char(suit);
-                blackbox.display_string(rank);
-                blackbox.display_string(" ");
-            }
-            
-            // display players
-            blackbox.locate(2, 1);
+            // vector<string> user_cards    = { river[0], river[1], river[2], river[3], river[4], user[0],    user[1]    };
+            // vector<string> player1_cards = { river[0], river[1], river[2], river[3], river[4], player1[0], player1[1] };
+            // vector<string> player2_cards = { river[0], river[1], river[2], river[3], river[4], player2[0], player2[1] };
 
-            vector<vector<string>> players = {player1, player2, user};
-            for (int i = 0; i < players.size(); i++) {
-                    vector<string> _player = players[i];
-                    
-                for (int j = 0; j < _player.size(); j++) {
-                    string card = _player[j];
-                    string suit = poker::getSuit(card);
-                    string rank = poker::getRank(card);
+            // int userPoints    = poker::getPoints(user_cards);
+            // int player1Points = poker::getPoints(player1_cards);
+            // int player2Points = poker::getPoints(player2_cards);
 
-                    blackbox.display_char(suit);
-                    blackbox.display_string(rank);
+            // // DEBUG: print player scores
+            // printf("%d\n", userPoints);
+            // printf("%d\n", player1Points);
+            // printf("%d\n", player2Points);
+
+            // thread_sleep_for(1000);
+
+            // int winnerScore = 0;
+            // int winnerPosition = 0;
+
+            // if (winnerScore > userPoints) {
+            //     winnerScore = userPoints;
+            //     winnerPosition = 0;
+            // }
+            // if (winnerScore > player1Points) {
+            //     winnerScore = player1Points;
+            //     winnerPosition = 1;
+            // }
+            // if (winnerScore > player2Points) {
+            //     winnerScore = player2Points;
+            //     winnerPosition = 2;
+            // }
+
+            // winnerPosition = 0;
+
+            // if (winnerPosition == 1) {
+            //     blackbox.locate(7, 1);
+            //     blackbox.display_string("    ");
+            //     blackbox.locate(12, 1);
+            //     blackbox.display_string("    ");
+            // }
+
+            // if (winnerPosition == 2) {
+            //     blackbox.locate(2, 1);
+            //     blackbox.display_string("    ");
+            //     blackbox.locate(12, 1);
+            //     blackbox.display_string("    ");
+            // }
+
+            // if (winnerPosition == 0) {
+            //     blackbox.locate(7, 1);
+            //     blackbox.display_string("    ");
+            //     blackbox.locate(12, 1);
+            //     blackbox.display_string("    ");
+            // }
+
+            while (true) {
+                if (button_start == false) {
+                    state = "river3";
+                    thread_sleep_for(200);
+                    break;
                 }
-                
-                blackbox.display_string(" ");
             }
-
-            vector<string> user_cards    = { river[0], river[1], river[2], river[3], river[4], user[0],    user[1]    };
-            vector<string> player1_cards = { river[0], river[1], river[2], river[3], river[4], player1[0], player1[1] };
-            vector<string> player2_cards = { river[0], river[1], river[2], river[3], river[4], player2[0], player2[1] };
-
-            int userPoints    = poker::getPoints(user_cards);
-            int player1Points = poker::getPoints(player1_cards);
-            int player2Points = poker::getPoints(player2_cards);
-
-            // DEBUG: print player scores
-            printf("%d\n", userPoints);
-            printf("%d\n", player1Points);
-            printf("%d\n", player2Points);
-
-            thread_sleep_for(1000);
-
-            int winnerScore = 0;
-            int winnerPosition = 0;
-
-            if (winnerScore > userPoints) {
-                winnerScore = userPoints;
-                winnerPosition = 0;
-            }
-            if (winnerScore > player1Points) {
-                winnerScore = player1Points;
-                winnerPosition = 1;
-            }
-            if (winnerScore > player2Points) {
-                winnerScore = player2Points;
-                winnerPosition = 2;
-            }
-
-            winnerPosition = 0;
-
-            if (winnerPosition == 1) {
-                blackbox.locate(7, 1);
-                blackbox.display_string("    ");
-                blackbox.locate(12, 1);
-                blackbox.display_string("    ");
-            }
-
-            if (winnerPosition == 2) {
-                blackbox.locate(2, 1);
-                blackbox.display_string("    ");
-                blackbox.locate(12, 1);
-                blackbox.display_string("    ");
-            }
-
-            if (winnerPosition == 0) {
-                blackbox.locate(7, 1);
-                blackbox.display_string("    ");
-                blackbox.locate(12, 1);
-                blackbox.display_string("    ");
-            }
-
-            return 0;
         }
+
+        
 
     }
 }
